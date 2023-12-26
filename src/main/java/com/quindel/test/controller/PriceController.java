@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -46,21 +47,25 @@ public class PriceController {
     @Operation(summary = "API that get prices of ZARA", description = "API that get prices of ZARA")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation.",
-            content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = PriceResponseDTO.class)))
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = PriceResponseDTO.class)))
     })
     @GetMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PriceResponseDTO>> get(
             @RequestParam("applyDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime applyDate,
             @RequestParam("productId") Integer productId,
             @RequestParam("brandId") Long brandId
-            ) {
+    ) {
+
         final var response = priceService.getProductPrice(PriceRequestDTO.builder()
-                        .applyDate(applyDate)
-                        .brandId(brandId)
-                        .productId(productId)
+                .applyDate(applyDate)
+                .brandId(brandId)
+                .productId(productId)
                 .build());
 
-        return ResponseEntity.ok(response);
+        return Optional.ofNullable(response)
+                .filter(list -> !list.isEmpty())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
 }

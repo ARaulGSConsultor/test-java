@@ -34,8 +34,8 @@ class PriceServiceImplTest {
     void whenGetProductPriceThenReturnList() {
         LocalDateTime dateTime = LocalDateTime.of(2020,6, 14, 0, 0,0);
 
-        when(priceRepository.findAllByStartDateLessThanEqualAndEndDateGreaterThanEqualAndProductIdAndBrandId(
-                dateTime, dateTime, 35455, 1L))
+        when(priceRepository.findAllBy(
+                dateTime, dateTime, 35455, 1L,  100 ))
                 .thenReturn(Optional.of(UtilTest.buildPriceList()));
 
         final List<PriceResponseDTO> productPrice = priceService.getProductPrice(UtilTest.buildPriceRequestDTO(dateTime.format(formatter)));

@@ -33,4 +33,8 @@ public class PriceRequestDTO {
      */
     private Long brandId;
 
+    /**
+     * Attribute that indicate limit response rows.
+     */
+    private int limit;
 }

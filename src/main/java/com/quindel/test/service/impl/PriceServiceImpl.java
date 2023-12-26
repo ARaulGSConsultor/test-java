@@ -1,5 +1,6 @@
 package com.quindel.test.service.impl;
 
+import com.quindel.test.converter.PriceConverter;
 import com.quindel.test.dto.PriceRequestDTO;
 import com.quindel.test.dto.PriceResponseDTO;
 import com.quindel.test.repository.PriceRepository;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -25,6 +27,10 @@ public class PriceServiceImpl implements PriceService {
     private final PriceRepository priceRepository;
 
     /**
+     *
+     */
+    private final static int DEFAULT_LIMIT = 100;
+    /**
      * Method that query to database with some parameters and return the result in an Object TDO.
      *
      * @param priceRequestDTO A price request DTO {@link PriceRequestDTO}.
@@ -33,19 +39,13 @@ public class PriceServiceImpl implements PriceService {
     @Override
     public List<PriceResponseDTO> getProductPrice(PriceRequestDTO priceRequestDTO) {
 
-        return priceRepository.findAllByStartDateLessThanEqualAndEndDateGreaterThanEqualAndProductIdAndBrandId(
+        return priceRepository.findAllBy(
                         priceRequestDTO.getApplyDate(), priceRequestDTO.getApplyDate(),
-                        priceRequestDTO.getProductId(), priceRequestDTO.getBrandId()
+                        priceRequestDTO.getProductId(), priceRequestDTO.getBrandId(),
+                        Optional.of(priceRequestDTO.getLimit()).filter(limit -> limit > 0).orElse(DEFAULT_LIMIT)
                 ).orElse(emptyList())
                 .stream()
-                .map(price -> PriceResponseDTO.builder()
-                        .price(price.getPrice())
-                        .productId(price.getProductId())
-                        .priceList(price.getPriceList())
-                        .brandId(price.getBrand().getId())
-                        .endDate(price.getEndDate())
-                        .startDate(price.getStartDate())
-                        .build())
+                .map(PriceConverter.INSTANCE::convertPriceResponseDTO)
                 .collect(Collectors.toList());
     }
 

@@ -11,4 +11,5 @@ import java.util.List;
  */
 public interface PriceService {
     List<PriceResponseDTO> getProductPrice(PriceRequestDTO priceRequestDTO);
+
 }
